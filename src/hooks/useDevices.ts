@@ -1,4 +1,5 @@
 import AgoraRTC, { IAgoraRTCClient } from 'agora-rtc-sdk-ng'
+import { notification } from 'antd'
 import { useState, useEffect } from 'react'
 
 export const useDevices = (): {
@@ -12,12 +13,18 @@ export const useDevices = (): {
     let mounted = true
 
     const getDevices = async () => {
-      const cameras = await AgoraRTC.getCameras()
-      const microphones = await AgoraRTC.getMicrophones()
+      try {
+        const cameras = await AgoraRTC.getCameras()
+        const microphones = await AgoraRTC.getMicrophones()
 
-      if (mounted) {
-        setCameraList(cameras)
-        setMicrophoneList(microphones)
+        if (mounted) {
+          setCameraList(cameras)
+          setMicrophoneList(microphones)
+        }
+      } catch (error) {
+        notification['error']({
+          message: 'get permission failed',
+        })
       }
     }
 

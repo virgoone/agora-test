@@ -18,6 +18,7 @@ import useDevices from '@/hooks/useDevices'
 import '@/style/common.less'
 import AgoraRTC, {
   IAgoraRTCClient,
+  IAgoraRTCRemoteUser,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   SDK_CODEC,
@@ -191,8 +192,12 @@ const App: React.FunctionComponent = (): JSX.Element => {
     if (!agoraClient) {
       return
     }
-    agoraClient.on('user-published', async (remoteUser, mediaType) => {
+    const onUserPublished = async (
+      remoteUser: IAgoraRTCRemoteUser,
+      mediaType: 'audio' | 'video',
+    ) => {
       await agoraClient.subscribe(remoteUser, mediaType)
+
       if (mediaType === 'video') {
         console.log('subscribe video success')
         remoteUser.videoTrack?.play('remote-player')
@@ -201,14 +206,22 @@ const App: React.FunctionComponent = (): JSX.Element => {
         console.log('subscribe audio success')
         remoteUser.audioTrack?.play()
       }
-    })
-
-    agoraClient.on('user-unpublished', (user, mediaType) => {
+    }
+    const onUserUnPublished = async (
+      remoteUser: IAgoraRTCRemoteUser,
+      mediaType: 'audio' | 'video',
+    ) => {
       if (mediaType === 'video') {
-        // 获取刚刚动态创建的 DIV 节点。
-        user.videoTrack?.stop()
+        remoteUser.videoTrack?.stop()
       }
-    })
+    }
+    agoraClient.on('user-published', onUserPublished)
+    agoraClient.on('user-unpublished', onUserUnPublished)
+
+    return () => {
+      agoraClient.off('user-published', onUserPublished)
+      agoraClient.off('user-unpublished', onUserUnPublished)
+    }
   }, [agoraClient])
 
   return (
