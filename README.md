@@ -1,6 +1,8 @@
 # agora-test
 
+## 使用了新版的 Agora Web SDK
+
 - Join/Leave a realtime video call
 - Select Camera/Microphone to use
 
-Demo: https://agora-test.douni.one/
+Demo: http://t.douni.one/agora-test

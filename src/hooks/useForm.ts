@@ -33,7 +33,7 @@ export type FormState = typeof defaultState
 
 const reducer = (
   state: FormState,
-  action: { type: string; [propName: string]: any },
+  action: { type: string; [propName: string]: string },
 ) => {
   switch (action.type) {
     case 'appId':
