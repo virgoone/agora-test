@@ -24,7 +24,8 @@ import AgoraRTC, {
   SDK_CODEC,
   SDK_MODE,
 } from 'agora-rtc-sdk-ng'
-
+import { remove } from 'lodash-es'
+import RemotePlayer from './components/remote-player'
 const { Header, Content } = Layout
 
 const App: React.FunctionComponent = (): JSX.Element => {
@@ -134,11 +135,11 @@ const App: React.FunctionComponent = (): JSX.Element => {
     setLoading(true)
 
     try {
+      localVideoTrack?.close()
+      localAudioTrack?.close()
+
       await agoraClient?.leave()
-      localVideoTrack?.stop()
-      localAudioTrack?.stop()
-      localVideoTrack?.setEnabled(false)
-      localAudioTrack?.setEnabled(false)
+
       setIsJoin(false)
       setIsPublished(false)
       notification['success']({
@@ -190,6 +191,8 @@ const App: React.FunctionComponent = (): JSX.Element => {
       notification['error']({ message: 'unpublish failed', description: error })
     }
   }
+
+  const [remoteList, setRemoteList] = useState<any[]>([])
   useEffect(() => {
     if (!agoraClient) {
       return
@@ -205,11 +208,12 @@ const App: React.FunctionComponent = (): JSX.Element => {
         notification['success']({
           message: `subscribe success, uid:${remoteUser.uid} `,
         })
-        remoteUser.videoTrack?.play('remote-player')
       }
       if (mediaType === 'audio') {
         console.log('subscribe audio success')
-        remoteUser.audioTrack?.play()
+      }
+      if (remoteUser.uid !== values.uid) {
+        setRemoteList([...remoteList, remoteUser])
       }
     }
     const onUserUnPublished = async (
@@ -219,6 +223,9 @@ const App: React.FunctionComponent = (): JSX.Element => {
       if (mediaType === 'video') {
         remoteUser.videoTrack?.stop()
       }
+      setRemoteList(
+        remove(remoteList, (user: any) => user.uid === remoteUser.uid),
+      )
     }
     const onUserLeave = async (
       remoteUser: IAgoraRTCRemoteUser,
@@ -228,6 +235,9 @@ const App: React.FunctionComponent = (): JSX.Element => {
         message: `user leave, uid:${remoteUser.uid} `,
       })
       await agoraClient.unsubscribe(remoteUser)
+      setRemoteList(
+        remove(remoteList, (user: any) => user.uid === remoteUser.uid),
+      )
     }
     agoraClient.on('user-published', onUserPublished)
     agoraClient.on('user-unpublished', onUserUnPublished)
@@ -238,7 +248,7 @@ const App: React.FunctionComponent = (): JSX.Element => {
       agoraClient.off('user-unpublished', onUserUnPublished)
       agoraClient.off('user-left', onUserLeave)
     }
-  }, [agoraClient])
+  }, [agoraClient, remoteList])
 
   return (
     <Spin spinning={loading} tip="Loading...">
@@ -326,10 +336,14 @@ const App: React.FunctionComponent = (): JSX.Element => {
                 ></div>
               </Card>
               <Card>
-                <div
-                  className="video-stream remote-stream"
-                  id="remote-player"
-                ></div>
+                <Row gutter={8}>
+                  {remoteList.map((remoteUser) => (
+                    <Col className="remote-player-col" span={8} key={remoteUser.uid}>
+                      <RemotePlayer remoteUser={remoteUser} />
+                      {remoteUser.uid}
+                    </Col>
+                  ))}
+                </Row>
               </Card>
             </Col>
           </Row>
