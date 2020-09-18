@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Spin,
   Layout,
@@ -18,15 +18,14 @@ import useDevices from '@/hooks/useDevices'
 import '@/style/common.less'
 import AgoraRTC, {
   IAgoraRTCClient,
-  IAgoraRTCRemoteUser,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   SDK_CODEC,
   SDK_MODE,
 } from 'agora-rtc-sdk-ng'
-import { remove } from 'lodash-es'
 import RemotePlayer from './components/remote-player'
 import useRemote from './hooks/useRemote'
+
 const { Header, Content } = Layout
 
 const App: React.FunctionComponent = (): JSX.Element => {

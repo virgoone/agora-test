@@ -1,4 +1,4 @@
-import AgoraRTC, { IAgoraRTCClient } from 'agora-rtc-sdk-ng'
+import AgoraRTC from 'agora-rtc-sdk-ng'
 import { notification } from 'antd'
 import { useState, useEffect } from 'react'
 

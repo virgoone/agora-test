@@ -1,5 +1,4 @@
 import { IAgoraRTCRemoteUser } from 'agora-rtc-sdk-ng'
-import { Card } from 'antd'
 import React, { useEffect, useRef } from 'react'
 
 type Props = {
@@ -10,8 +9,6 @@ const RemotePlayer: React.FunctionComponent<Props> = (props): JSX.Element => {
   const { remoteUser } = props
   const $remotePlayer = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    console.log('remoteList--->', remoteUser)
-
     if (!$remotePlayer.current) {
       return
     }
