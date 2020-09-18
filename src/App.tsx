@@ -20,6 +20,8 @@ import AgoraRTC, {
   IAgoraRTCClient,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
+  SDK_CODEC,
+  SDK_MODE,
 } from 'agora-rtc-sdk-ng'
 
 const { Header, Content } = Layout
@@ -68,21 +70,28 @@ const App: React.FunctionComponent = (): JSX.Element => {
     const { mode, codec, uid, appId, channel, token } = values
 
     const client = AgoraRTC.createClient({
-      mode,
-      codec,
+      mode: mode as SDK_MODE,
+      codec: codec as SDK_CODEC,
     })
 
     setLoading(true)
     setAgoraClient(client)
-    setIsJoin(true)
 
     const userId = uid || '123456'
-
-    await client.join(appId, channel, token, userId)
-
-    notification['success']({
-      message: `Joined channel: ${values.channel}, uid: ${userId}`,
-    })
+    try {
+      await client.join(appId, channel, token, userId)
+      setIsJoin(true)
+      notification['success']({
+        message: `Joined channel: ${values.channel}, uid: ${userId}`,
+      })
+    } catch (error) {
+      console.log(error)
+      setLoading(false)
+      notification['error']({
+        message: `join channel failed: ${values.channel}`,
+      })
+      return
+    }
 
     const localAudio = await AgoraRTC.createMicrophoneAudioTrack()
     const localVideo = await AgoraRTC.createCameraVideoTrack()

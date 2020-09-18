@@ -21,7 +21,7 @@ const resolutions = [
 const defaultState = {
   appId: '',
   channel: '',
-  token: undefined,
+  token: '',
   uid: '123123123',
   cameraId: '',
   microphoneId: '',
@@ -36,10 +36,25 @@ const reducer = (
   action: { type: string; [propName: string]: any },
 ) => {
   switch (action.type) {
+    case 'appId':
+      return {
+        ...state,
+        appId: action.value,
+      }
+    case 'channel':
+      return {
+        ...state,
+        channel: action.value,
+      }
     case 'uid':
       return {
         ...state,
         uid: action.value,
+      }
+    case 'token':
+      return {
+        ...state,
+        token: action.value,
       }
     case 'cameraId':
       return {
