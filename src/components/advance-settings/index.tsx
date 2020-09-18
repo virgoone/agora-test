@@ -57,7 +57,7 @@ const AdvanceSetting: React.FunctionComponent<Props> = (props): JSX.Element => {
     >
       <Form layout="vertical" onValuesChange={onValuesChange} form={form}>
         <Form.Item name="uid" label="UID">
-          <Input placeholder="Please enter uid" />
+          <Input type="number" placeholder="Please enter uid" />
         </Form.Item>
         <Form.Item name="cameraId" label="Camera">
           <Select placeholder="Please choose the Camera">

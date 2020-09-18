@@ -138,7 +138,9 @@ const App: React.FunctionComponent = (): JSX.Element => {
       localVideoTrack?.stop()
       localAudioTrack?.stop()
       localVideoTrack?.setEnabled(false)
+      localAudioTrack?.setEnabled(false)
       setIsJoin(false)
+      setIsPublished(false)
       notification['success']({
         message: 'Leave success',
       })
@@ -182,12 +184,12 @@ const App: React.FunctionComponent = (): JSX.Element => {
     }
     try {
       await agoraClient.unpublish([localVideoTrack, localAudioTrack])
+      setIsPublished(false)
       notification['success']({ message: 'unpublished' })
     } catch (error) {
       notification['error']({ message: 'unpublish failed', description: error })
     }
   }
-
   useEffect(() => {
     if (!agoraClient) {
       return
@@ -200,6 +202,9 @@ const App: React.FunctionComponent = (): JSX.Element => {
 
       if (mediaType === 'video') {
         console.log('subscribe video success')
+        notification['success']({
+          message: `subscribe success, uid:${remoteUser.uid} `,
+        })
         remoteUser.videoTrack?.play('remote-player')
       }
       if (mediaType === 'audio') {
@@ -215,12 +220,23 @@ const App: React.FunctionComponent = (): JSX.Element => {
         remoteUser.videoTrack?.stop()
       }
     }
+    const onUserLeave = async (
+      remoteUser: IAgoraRTCRemoteUser,
+      reason: string,
+    ) => {
+      notification['info']({
+        message: `user leave, uid:${remoteUser.uid} `,
+      })
+      await agoraClient.unsubscribe(remoteUser)
+    }
     agoraClient.on('user-published', onUserPublished)
     agoraClient.on('user-unpublished', onUserUnPublished)
+    agoraClient.on('user-left', onUserLeave)
 
     return () => {
       agoraClient.off('user-published', onUserPublished)
       agoraClient.off('user-unpublished', onUserUnPublished)
+      agoraClient.off('user-left', onUserLeave)
     }
   }, [agoraClient])
 
